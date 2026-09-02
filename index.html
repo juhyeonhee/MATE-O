@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="MATE-O 학술 글쓰기 수정 전후 비교 도구">
+  <title>MATE-O Writing Coach</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">MATE-O · Academic Writing Agent</p>
+      <h1>My Writing Coach</h1>
+    </div>
+    <div class="header-actions no-print">
+      <button id="sampleBtn" class="button button-ghost" type="button">예시 불러오기</button>
+      <button id="printBtn" class="button button-dark" type="button">인쇄 · PDF 저장</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="control-bar no-print" aria-labelledby="settings-title">
+      <h2 id="settings-title" class="sr-only">분석 설정</h2>
+      <label>
+        <span>학습 단계</span>
+        <select id="layerSelect">
+          <option value="L1">L1 주제 이해 · Comprehension</option>
+          <option value="L2">L2 논증 · Argumentation</option>
+          <option value="L3" selected>L3 학술 글쓰기 · Academic Writing</option>
+          <option value="R+1">R+1 성찰 · Metacognitive</option>
+        </select>
+      </label>
+
+      <fieldset class="temperature-control">
+        <legend>Temperature</legend>
+        <div class="preset-buttons" aria-label="Temperature 프리셋">
+          <button type="button" class="preset" data-value="0.15">안정</button>
+          <button type="button" class="preset active" data-value="0.40">균형</button>
+          <button type="button" class="preset" data-value="0.65">탐색</button>
+        </div>
+        <label class="range-wrap">
+          <input id="temperature" type="range" min="0" max="0.75" step="0.05" value="0.40">
+          <output id="temperatureValue" for="temperature">0.40</output>
+        </label>
+        <small id="temperatureHint">일관성과 질문 다양성의 균형</small>
+      </fieldset>
+    </section>
+
+    <section class="editor-grid" aria-label="수정 전후 글 입력">
+      <article class="editor-card before-card">
+        <div class="card-heading">
+          <div><span class="step-number">01</span><h2>수정 전</h2></div>
+          <span id="beforeCount" class="counter">0자 · 0문장</span>
+        </div>
+        <textarea id="beforeText" placeholder="수정 전 글을 입력하세요." aria-label="수정 전 글"></textarea>
+      </article>
+
+      <article class="editor-card after-card">
+        <div class="card-heading">
+          <div><span class="step-number">02</span><h2>수정 후</h2></div>
+          <span id="afterCount" class="counter">0자 · 0문장</span>
+        </div>
+        <textarea id="afterText" placeholder="피드백을 반영한 수정문을 입력하세요." aria-label="수정 후 글"></textarea>
+      </article>
+    </section>
+
+    <div class="primary-action no-print">
+      <button id="analyzeBtn" class="button button-primary" type="button">수정 전후 분석하기</button>
+      <p>분석 결과는 수업용 참고 지표이며 교수자의 최종 판단을 대신하지 않습니다.</p>
+    </div>
+
+    <section id="emptyState" class="empty-state">
+      <div class="empty-mark" aria-hidden="true">↗</div>
+      <h2>두 글의 변화를 확인해 보세요</h2>
+      <p>수정 전·후 글을 입력하면 지표, Toulmin 논증 요소, 개선 질문을 함께 비교합니다.</p>
+    </section>
+
+    <section id="results" class="results" hidden aria-live="polite">
+      <div class="result-title-row">
+        <div>
+          <p class="eyebrow">Comparison report</p>
+          <h2>수정 전후 분석 결과</h2>
+          <p id="reportMeta" class="report-meta"></p>
+        </div>
+        <div id="overallDelta" class="overall-delta"></div>
+      </div>
+
+      <section class="score-summary" aria-label="종합 점수">
+        <div class="score-block before-score"><span>수정 전</span><strong id="beforeScore">0</strong><small>/ 100</small></div>
+        <div class="score-arrow" aria-hidden="true">→</div>
+        <div class="score-block after-score"><span>수정 후</span><strong id="afterScore">0</strong><small>/ 100</small></div>
+      </section>
+
+      <section>
+        <div class="section-heading"><h3>핵심 지표 비교</h3><p>막대는 100점 기준입니다.</p></div>
+        <div id="metricList" class="metric-list"></div>
+      </section>
+
+      <section class="toulmin-section">
+        <div class="section-heading"><h3>Toulmin 논증 6요소</h3><p>표현 단서를 바탕으로 한 구조 진단입니다.</p></div>
+        <div id="toulminGrid" class="toulmin-grid"></div>
+      </section>
+
+      <section class="feedback-grid">
+        <article>
+          <p class="eyebrow">Observed change</p>
+          <h3>확인된 변화</h3>
+          <ul id="changeList"></ul>
+        </article>
+        <article>
+          <p class="eyebrow">Next question</p>
+          <h3>다음 수정을 위한 질문</h3>
+          <ol id="questionList"></ol>
+        </article>
+      </section>
+
+      <section class="print-texts print-only">
+        <article><h3>수정 전 원문</h3><p id="printBefore"></p></article>
+        <article><h3>수정 후 원문</h3><p id="printAfter"></p></article>
+      </section>
+    </section>
+  </main>
+
+  <footer>
+    <p>MATE-O는 학습자의 사고와 수정 과정을 돕는 학습 조력 도구입니다.</p>
+  </footer>
+  <script src="script.js"></script>
+</body>
+</html>
