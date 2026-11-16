@@ -176,9 +176,9 @@ const rubricScores = Array.from(document.querySelectorAll('.rubric-score'));
 function updateRubric() {
  const assessed = rubricScores.filter(el => el.value !== '').length;
  const base = rubricScores.reduce((sum,el) => sum + Number(el.value || 0), 0);
- const complete = assessed === 8;
- $('#rubricTotal').textContent = complete ? `총점 ${base}/10점` : `평가 대기 · ${assessed}/8개 항목 입력`;
- $('#rubricBreakdown').textContent = `8개 평가 항목 합계 ${base}/10점${assessed < 8 ? ' (입력된 항목의 소계)' : ''}`;
+ const complete = assessed === 10;
+ $('#rubricTotal').textContent = complete ? `총점 ${base}/10점` : `평가 대기 · ${assessed}/10개 항목 입력`;
+ $('#rubricBreakdown').textContent = `10개 평가 항목 합계 ${base}/10점${assessed < 10 ? ' (입력된 항목의 소계)' : ''}`;
 }
 rubricScores.forEach(el => el.addEventListener('input', updateRubric));
 function resetRubric() {
