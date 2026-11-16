@@ -1,29 +1,21 @@
 const $ = (selector) => document.querySelector(selector);
 const beforeText = $('#beforeText');
 const afterText = $('#afterText');
-const temperature = $('#temperature');
-
-const metricLabels = {
-  claim: '주장 명료성', evidence: '근거 활용', reasoning: '논증 연결',
-  structure: '구조 완결성', academic: '학술 문체', readability: '가독성'
-};
-
+const metricLabels = { understanding: '책의 이해', interpretation: '핵심 해석', critique: '비평과 근거', structure: '글의 구성', expression: '표현과 인용' };
 const toulminDefs = [
-  ['claim', 'Claim · 주장', /(주장|생각|필요하다|해야 한다|할 수 있다|중요하다|본고|이 글)/],
-  ['data', 'Data · 근거', /(자료|연구|통계|조사|사례|결과|에 따르면|보여 ?준다|나타났다|%|퍼센트)/],
-  ['warrant', 'Warrant · 보증', /(왜냐하면|따라서|그러므로|이는|때문|의미한다|연결된다|근거로)/],
-  ['backing', 'Backing · 보강', /(선행 ?연구|이론|전문가|보고서|법률|문헌|추가로|뒷받침)/],
-  ['qualifier', 'Qualifier · 한정', /(대체로|일반적으로|일부|경우에 따라|가능성이|수 있다|한편|범위)/],
-  ['rebuttal', 'Rebuttal · 반박', /(그러나|하지만|반면|그럼에도|반론|한계|예외|물론|비판)/]
+ ['overview', 'Overview · 책 소개', /(저자|작가|소설|에세이|이 책|이 작품|다룬다|이야기)/],
+ ['summary', 'Summary · 핵심 내용', /(주인공|내용|줄거리|핵심|주제|설명|다룬다)/],
+ ['interpretation', 'Reading · 자신의 해석', /(의미|해석|생각|시사|드러낸다|보여 ?준다|읽었다)/],
+ ['evidence', 'Evidence · 구체적 근거', /(장면|구절|문장|쪽|페이지|인용|예를 들어|「|“|『)/],
+ ['critique', 'Critique · 가치와 한계', /(가치|한계|설득|아쉽|의의|비판|그러나|반면|장점)/],
+ ['recommendation', 'Reader · 독자와 연결', /(추천|권하고|독자|우리|나의|삶|경험|사회)/]
 ];
-
 const questionBank = {
-  claim: ['핵심 주장을 한 문장으로 더 분명하게 말하면 무엇인가요?', '주장의 적용 범위를 어디까지로 한정할 수 있을까요?'],
-  evidence: ['이 주장을 직접 뒷받침하는 검증 가능한 자료는 무엇인가요?', '제시한 사례가 전체 주장을 대표한다고 볼 근거가 있나요?'],
-  reasoning: ['이 근거가 왜 그 주장으로 이어지는지 연결 문장을 써 볼까요?', '근거와 결론 사이에 생략된 판단 기준은 무엇인가요?'],
-  structure: ['각 문단이 하나의 중심 생각을 맡고 있나요?', '반론을 어느 위치에 놓아야 논증의 흐름이 더 선명해질까요?'],
-  academic: ['단정적인 표현을 근거의 강도에 맞게 조절할 부분이 있나요?', '인용의 출처와 자신의 해석을 명확히 구분했나요?'],
-  readability: ['가장 긴 문장을 둘로 나누면 핵심이 더 잘 보일까요?', '반복되는 표현을 줄이고도 의미를 유지할 수 있나요?']
+ understanding: ['책이 다루는 핵심 문제를 자신의 말로 요약하면 무엇인가요?', '저자의 관점과 자신의 생각을 구분해 썼나요?'],
+ interpretation: ['이 책을 관통하는 자신의 해석을 한 문장으로 써 볼까요?', '그 장면이 책 전체에서 갖는 의미는 무엇인가요?'],
+ critique: ['책의 가치나 한계를 어떤 기준으로 판단했나요?', '자신의 평가를 뒷받침할 장면이나 구절은 어디에 있나요?'],
+ structure: ['소개·요약·해석·평가가 자연스럽게 이어지나요?', '줄거리 요약을 줄이고 자신의 판단을 더할 부분이 있나요?'],
+ expression: ['인용문과 자신의 해석을 구분하고 쪽수를 표시했나요?', '막연한 감상을 구체적인 문장으로 바꾸면 어떻게 될까요?']
 };
 
 function sentences(text) {
@@ -44,31 +36,18 @@ function countMatches(text, regex) {
 }
 
 function analyze(text) {
-  const s = sentences(text);
-  const w = words(text);
-  const chars = text.replace(/\s/g, '').length;
-  const avgSentence = chars / Math.max(1, s.length);
-  const paragraphCount = text.split(/\n\s*\n|\n/).filter(p => p.trim()).length;
-  const connectors = countMatches(text, /(따라서|그러나|하지만|또한|한편|즉|반면|그러므로|첫째|둘째|마지막으로)/g);
-  const citations = countMatches(text, /(에 따르면|\([^)]*\d{4}[^)]*\)|「|『|%|퍼센트|연구|조사)/g);
-  const hedges = countMatches(text, /(수 있다|가능성이|대체로|일반적으로|일부|보인다|판단된다)/g);
-  const repeats = (() => {
-    const clean = w.map(x => x.replace(/[^가-힣a-zA-Z0-9]/g, '')).filter(x => x.length > 1);
-    return clean.length ? 1 - new Set(clean).size / clean.length : 0;
-  })();
-  const toulmin = Object.fromEntries(toulminDefs.map(([key, , regex]) => [key, regex.test(text)]));
-
-  const enough = Math.min(chars / 350, 1);
-  const metrics = {
-    claim: clamp((toulmin.claim ? 62 : 28) + (s.length >= 2 ? 10 : 0) + Math.min(12, connectors * 3) + enough * 10),
-    evidence: clamp((toulmin.data ? 58 : 25) + Math.min(20, citations * 6) + (toulmin.backing ? 12 : 0) + enough * 8),
-    reasoning: clamp((toulmin.warrant ? 56 : 27) + Math.min(17, connectors * 4) + (toulmin.rebuttal ? 9 : 0) + enough * 8),
-    structure: clamp(30 + Math.min(22, paragraphCount * 6) + Math.min(24, connectors * 4) + (toulmin.rebuttal ? 9 : 0) + enough * 8),
-    academic: clamp(32 + Math.min(24, citations * 6) + Math.min(18, hedges * 4) + (toulmin.qualifier ? 9 : 0) + enough * 8),
-    readability: clamp(86 - Math.max(0, avgSentence - 48) * .65 - repeats * 35 + Math.min(10, paragraphCount * 2) + enough * 6)
-  };
-  const score = clamp(Object.values(metrics).reduce((a, b) => a + b, 0) / 6);
-  return { chars, sentenceCount: s.length, metrics, score, toulmin };
+ const list = sentences(text), chars = text.replace(/\s/g, '').length;
+ const toulmin = Object.fromEntries(toulminDefs.map(([key,,regex]) => [key, regex.test(text)]));
+ const paragraphs = text.split(/\n\s*\n|\n/).filter(p => p.trim()).length;
+ const indicator = (keys) => clamp(keys.filter(k => toulmin[k]).length / keys.length * 100);
+ const metrics = chars ? {
+   understanding: indicator(['overview', 'summary']),
+   interpretation: indicator(['interpretation', 'evidence']),
+   critique: indicator(['critique', 'evidence']),
+   structure: clamp((toulmin.overview ? 25 : 0) + (toulmin.interpretation ? 25 : 0) + (toulmin.critique ? 25 : 0) + (paragraphs >= 3 ? 25 : 0)),
+   expression: clamp((/[.!?。！？]/.test(text) ? 25 : 0) + (paragraphs >= 2 ? 25 : 0) + (/\d+\s*(쪽|페이지)|p\.\s*\d+/i.test(text) ? 25 : 0) + (/[“”「」『』"]/.test(text) ? 25 : 0))
+ } : Object.fromEntries(Object.keys(metricLabels).map(k => [k, 0]));
+ return { chars, sentenceCount: list.length, metrics, score: clamp(Object.values(metrics).reduce((a,b)=>a+b,0)/5), toulmin };
 }
 
 function updateCounter(textarea, target) {
@@ -101,8 +80,8 @@ function renderToulmin(before, after) {
     <article class="toulmin-card">
       <header><strong>${label}</strong><span>${!before.toulmin[key] && after.toulmin[key] ? '새로 보완' : ''}</span></header>
       <div class="status-pair">
-        <span class="status ${before.toulmin[key] ? 'present' : 'missing'}">전 ${before.toulmin[key] ? '확인' : '미확인'}</span>
-        <span class="status ${after.toulmin[key] ? 'present' : 'missing'}">후 ${after.toulmin[key] ? '확인' : '미확인'}</span>
+        <span class="status ${before.toulmin[key] ? 'present' : 'missing'}">전 ${before.toulmin[key] ? '단서 있음' : '단서 미검출'}</span>
+        <span class="status ${after.toulmin[key] ? 'present' : 'missing'}">후 ${after.toulmin[key] ? '단서 있음' : '단서 미검출'}</span>
       </div>
     </article>`).join('');
 }
@@ -118,11 +97,11 @@ function renderFeedback(before, after) {
   const needsWork = [...ranked].sort((a, b) => a.score - b.score).slice(0, 3);
   const added = toulminDefs.filter(([key]) => !before.toulmin[key] && after.toulmin[key]).map(([, label]) => label.split(' · ')[1]);
 
-  const changes = improved.map(x => `${metricLabels[x.key]}가 ${x.delta >= 0 ? `${x.delta}점 향상` : `${Math.abs(x.delta)}점 낮아짐`}했습니다.`);
-  if (added.length) changes.unshift(`논증 요소 ${added.join(', ')}이(가) 수정문에서 새롭게 확인됩니다.`);
+  const changes = improved.map(x => `${metricLabels[x.key]}가 ${x.delta >= 0 ? `${x.delta}점 증가` : `${Math.abs(x.delta)}점 낮아짐`}했습니다.`);
+  if (added.length) changes.unshift(`서평 구성 요소 ${added.join(', ')}이(가) 수정문에서 새롭게 확인됩니다.`);
   $('#changeList').innerHTML = changes.slice(0, 4).map(x => `<li>${x}</li>`).join('');
 
-  const temp = Number(temperature.value);
+  const temp = 0;
   $('#questionList').innerHTML = needsWork.map((x, i) => {
     const variation = temp >= .55 ? i + after.chars : 0;
     return `<li>${seededPick(questionBank[x.key], after.score + i, variation)}</li>`;
@@ -130,61 +109,65 @@ function renderFeedback(before, after) {
 }
 
 function analyzeAndRender() {
-  if (!beforeText.value.trim() || !afterText.value.trim()) {
-    alert('수정 전 글과 수정 후 글을 모두 입력해 주세요.');
+  if (!beforeText.value.trim()) {
+    alert('서평 초고를 입력해 주세요.');
     (!beforeText.value.trim() ? beforeText : afterText).focus();
     return;
   }
   const before = analyze(beforeText.value);
-  const after = analyze(afterText.value);
+  const comparing = Boolean(afterText.value.trim());
+  const after = analyze(comparing ? afterText.value : beforeText.value);
   const delta = after.score - before.score;
   const now = new Date();
-  const layer = $('#layerSelect').selectedOptions[0].textContent;
+  const book = [$('#bookTitle').value.trim(), $('#bookAuthor').value.trim()].filter(Boolean).join(' · ');
+  $('#results').classList.toggle('single-review', !comparing);
+  $('.after-score').hidden = !comparing;
+  $('.score-arrow').hidden = !comparing;
+  $('.before-score span').textContent = comparing ? '서평 초고' : '서평 초고 · 자동 점검 지수';
 
   $('#beforeScore').textContent = before.score;
   $('#afterScore').textContent = after.score;
-  $('#overallDelta').textContent = delta > 0 ? `종합 +${delta}점` : delta < 0 ? `종합 ${delta}점` : '종합 변화 없음';
+  $('#overallDelta').textContent = !comparing ? '초고 점검' : delta > 0 ? `종합 +${delta}점` : delta < 0 ? `종합 ${delta}점` : '종합 변화 없음';
   $('#overallDelta').classList.toggle('down', delta < 0);
-  $('#reportMeta').textContent = `${now.toLocaleDateString('ko-KR')} · ${layer} · Temperature ${Number(temperature.value).toFixed(2)}`;
+  $('#reportMeta').textContent = `${now.toLocaleDateString('ko-KR')} · ${book || '책 정보 미입력'} · ${comparing ? '수정 전후 비교' : '초고 점검'} · AI 의미 평가가 아닌 표현 단서 점검`;
   $('#printBefore').textContent = beforeText.value;
   $('#printAfter').textContent = afterText.value;
   renderMetrics(before, after);
   renderToulmin(before, after);
+  if (!comparing) {
+    $('#metricList').innerHTML = Object.entries(metricLabels).map(([key,label]) => `<div class="metric-row"><span class="metric-name">${label}</span><div class="bars"><div class="bar-track"><div class="bar bar-after" style="width:${before.metrics[key]}%"></div></div></div><span class="metric-values">${before.metrics[key]}</span></div>`).join('');
+    $('#toulminGrid').innerHTML = toulminDefs.map(([key,label]) => `<article class="toulmin-card"><header>${label}</header><div class="status-pair"><span class="status ${before.toulmin[key] ? 'present' : 'missing'}">${before.toulmin[key] ? '단서 있음' : '단서 미검출'}</span></div></article>`).join('');
+  }
   renderFeedback(before, after);
+  if (!comparing) {
+    $('#changeList').replaceChildren(...toulminDefs.map(([key,label]) => { const li = document.createElement('li'); li.textContent = `${label}: ${before.toulmin[key] ? '표현 단서 있음' : '단서 미검출 · 직접 검토 필요'}`; return li; }));
+  }
   $('#emptyState').hidden = true;
   $('#results').hidden = false;
   $('#results').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-function setTemperature(value) {
-  temperature.value = value;
-  $('#temperatureValue').value = Number(value).toFixed(2);
-  document.querySelectorAll('.preset').forEach(btn => btn.classList.toggle('active', Number(btn.dataset.value) === Number(value)));
-  const v = Number(value);
-  $('#temperatureHint').textContent = v <= .25 ? '재현성과 일관성 우선' : v <= .5 ? '일관성과 질문 다양성의 균형' : '다양한 관점과 질문 탐색';
+beforeText.addEventListener('input', invalidate);
+afterText.addEventListener('input', invalidate);
+$('#bookTitle').addEventListener('input', invalidate);
+$('#bookAuthor').addEventListener('input', invalidate);
+function invalidate() {
+ updateCounter(beforeText, $('#beforeCount'));
+ updateCounter(afterText, $('#afterCount'));
+ $('#results').hidden = true;
+ $('#emptyState').hidden = false;
 }
-
-beforeText.addEventListener('input', () => updateCounter(beforeText, $('#beforeCount')));
-afterText.addEventListener('input', () => updateCounter(afterText, $('#afterCount')));
-temperature.addEventListener('input', () => setTemperature(temperature.value));
-document.querySelectorAll('.preset').forEach(btn => btn.addEventListener('click', () => setTemperature(btn.dataset.value)));
 $('#analyzeBtn').addEventListener('click', analyzeAndRender);
 $('#printBtn').addEventListener('click', () => {
-  if ($('#results').hidden) {
-    analyzeAndRender();
-    if ($('#results').hidden) return;
-  }
-  window.print();
+ if (beforeText.value.trim()) analyzeAndRender();
+ document.body.classList.toggle('printing-report', !$('#results').hidden);
+ // Open printing even for an empty worksheet; never depend on report visibility.
+ window.print();
 });
 $('#sampleBtn').addEventListener('click', () => {
-  beforeText.value = '인공지능은 대학 글쓰기 교육에 필요하다. 학생들은 인공지능을 사용하면 글을 빨리 쓸 수 있다. 따라서 수업에서 인공지능을 많이 활용해야 한다.';
-  afterText.value = '대학 글쓰기 수업에서는 학습자의 판단 과정을 보존하는 범위에서 인공지능을 활용할 필요가 있다. 한 대학의 수업 사례에 따르면 즉각적인 피드백은 초고 수정에 도움을 줄 수 있다. 이는 피드백의 속도가 학습자에게 반복 수정의 기회를 제공하기 때문이다. 그러나 인공지능이 문단 전체를 대신 작성하면 학습자의 사고 과정이 축소될 수 있다. 따라서 교수자의 확인 아래 진단과 질문 중심으로 활용하는 것이 타당하다.';
-  updateCounter(beforeText, $('#beforeCount'));
-  updateCounter(afterText, $('#afterCount'));
-  setTemperature(.4);
-  analyzeAndRender();
+ $('#bookTitle').value = '어린 왕자'; $('#bookAuthor').value = '앙투안 드 생텍쥐페리';
+ beforeText.value = '이 책은 어린 왕자가 여러 별을 여행하는 이야기이다. 재미있고 감동적이었다. 다른 사람에게도 추천하고 싶다.';
+ afterText.value = '『어린 왕자』는 여행하는 주인공을 통해 관계의 의미를 묻는 소설이다. 이 책의 핵심은 특별한 관계가 시간과 돌봄으로 만들어진다는 데 있다고 생각한다.\n\n여우와 관계를 맺는 장면은 이러한 해석을 뒷받침한다. 어린 왕자가 자신의 장미를 새롭게 이해하는 변화는 관계의 가치가 겉모습보다 함께한 경험에 있음을 보여 준다.\n\n이 작품의 장점은 추상적인 문제를 구체적인 만남으로 드러낸다는 것이다. 그러나 관계에 대한 책임을 현실에서 어떻게 실천할지는 독자에게 남긴다. 타인과의 관계를 돌아보고 싶은 독자에게 이 책을 권하고 싶다.';
+ invalidate(); analyzeAndRender();
 });
-
-setTemperature(.4);
-updateCounter(beforeText, $('#beforeCount'));
-updateCounter(afterText, $('#afterCount'));
+invalidate();

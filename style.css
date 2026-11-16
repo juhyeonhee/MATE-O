@@ -171,3 +171,19 @@ footer { padding: 26px 0 38px; color: var(--muted); font-size: .78rem; text-alig
   .print-texts { grid-template-columns: 1fr 1fr; gap: 8mm; margin-top: 10mm; break-before: page; }
   .print-texts p { white-space: pre-wrap; }
 }
+
+[hidden] { display: none !important; }
+.subtitle { margin: 14px 0 0; color: var(--muted); }
+.book-info, .writing-guide { padding: 22px; margin-bottom: 18px; background: white; border: 1px solid var(--line); border-radius: 16px; }
+.book-info h2, .writing-guide h2 { margin-bottom: 12px; }
+.book-fields { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+.book-fields label { display: grid; gap: 6px; color: var(--muted); }
+.book-fields input { width: 100%; min-height: 46px; border: 1px solid var(--line); border-radius: 9px; padding: 10px; color: var(--ink); }
+.writing-guide { background: var(--blue-soft); }
+.writing-guide ol { padding-left: 22px; margin-bottom: 0; }
+@media(max-width: 520px) { .book-fields { grid-template-columns: 1fr; } }
+@media print { .book-info, .writing-guide, .editor-grid { display: none; } }
+
+@media print { .editor-grid { display: grid; box-shadow: none; } .results:not([hidden]) ~ .editor-grid { display: none; } textarea { min-height: 80mm; } .editor-card { box-shadow: none; } }
+
+@media print { body.printing-report .editor-grid { display: none; } }
