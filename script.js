@@ -171,3 +171,26 @@ $('#sampleBtn').addEventListener('click', () => {
  invalidate(); analyzeAndRender();
 });
 invalidate();
+
+const rubricScores = Array.from(document.querySelectorAll('.rubric-score'));
+function updateRubric() {
+ const assessed = rubricScores.filter(el => el.value !== '').length;
+ const base = rubricScores.reduce((sum,el) => sum + Number(el.value || 0), 0);
+ const presentation = $('#presented').value;
+ const lateValue = $('#lateDays').value;
+ const days = Number(lateValue);
+ const validDays = lateValue !== '' && Number.isInteger(days) && days >= 0;
+ const complete = assessed === 8 && presentation !== '' && validDays;
+ const bonus = presentation === 'yes' ? 1 : 0;
+ $('#rubricTotal').textContent = complete ? `최종 ${base + bonus - days}점` : `평가 대기 · ${assessed}/8개 항목 입력`;
+ $('#rubricBreakdown').textContent = `기본 점수 ${base}/10점${assessed < 8 ? ' (입력된 항목의 소계)' : ''} · 발표 ${presentation === '' ? '미확인' : '+' + bonus + '점'} · 지각 ${validDays ? '−' + days + '점' : '일수 확인 필요'}`;
+}
+[...rubricScores, $('#presented'), $('#lateDays')].forEach(el => el.addEventListener('input', updateRubric));
+function resetRubric() {
+ [...rubricScores, $('#presented'), $('#lateDays')].forEach(el => el.value = '');
+ updateRubric();
+}
+$('#resetRubric').addEventListener('click', resetRubric);
+[beforeText, afterText, $('#bookTitle'), $('#bookAuthor')].forEach(el => el.addEventListener('input', resetRubric));
+$('#sampleBtn').addEventListener('click', resetRubric);
+updateRubric();
