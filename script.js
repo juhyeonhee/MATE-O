@@ -174,15 +174,13 @@ invalidate();
 
 const rubricScores = Array.from(document.querySelectorAll('.rubric-score'));
 function updateRubric() {
- const assessed = rubricScores.filter(el => el.value !== '').length;
- const base = rubricScores.reduce((sum,el) => sum + Number(el.value || 0), 0);
- const complete = assessed === 10;
- $('#rubricTotal').textContent = complete ? `총점 ${base}/10점` : `평가 대기 · ${assessed}/10개 항목 입력`;
- $('#rubricBreakdown').textContent = `10개 평가 항목 합계 ${base}/10점${assessed < 10 ? ' (입력된 항목의 소계)' : ''}`;
+ const assessed = rubricScores.filter(el => el.dataset.score !== undefined).length;
+ const total = rubricScores.reduce((sum, el) => sum + Number(el.dataset.score || 0), 0);
+ $('#rubricTotal').textContent = assessed === 10 ? `자동 채점 총점 ${total}/10점` : '글을 입력하고 자동 채점을 실행해 주세요.';
+ $('#rubricBreakdown').textContent = assessed === 10 ? `10개 기준 자동 분석 완료 · ${total}점` : '';
 }
-rubricScores.forEach(el => el.addEventListener('input', updateRubric));
 function resetRubric() {
- rubricScores.forEach(el => el.value = '');
+ rubricScores.forEach(el => { delete el.dataset.score; el.textContent = '분석 대기'; });
  updateRubric();
 }
 $('#resetRubric').addEventListener('click', resetRubric);
