@@ -109,12 +109,12 @@ function renderFeedback(before, after) {
 }
 
 function analyzeAndRender() {
-  if (!beforeText.value.trim()) {
+  if (!beforeText.value.trim() && !afterText.value.trim()) {
     alert('서평 초고를 입력해 주세요.');
     (!beforeText.value.trim() ? beforeText : afterText).focus();
     return;
   }
-  const before = analyze(beforeText.value);
+  const before = analyze(beforeText.value.trim() || afterText.value);
   const comparing = Boolean(afterText.value.trim());
   const after = analyze(comparing ? afterText.value : beforeText.value);
   const delta = after.score - before.score;
