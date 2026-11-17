@@ -32,7 +32,7 @@
   const guidance=['목록 대신 문장과 문단으로 이어 쓰세요.','분량 참고 기준을 확인하고 해석과 비평을 보충하세요.','책 제목과 구별되는 서평 제목을 첫 줄 또는 제목란에 제시하세요.','저자·역자(해당 시)·책 제목·출판사·출판 연도를 명시하세요.','책의 편찬·집필 배경을 당시 상황과 연결하세요.','책이 제기하는 문제 또는 핵심 주장을 설명하세요.','자신의 평가를 장면·구절과 판단 이유로 뒷받침하세요.','현대 사회에서 갖는 의의와 한계를 함께 설명하세요.','시대가 달라져도 읽을 가치가 있는 이유를 평가하세요.','직접·간접 인용을 구분하고 쪽수와 출처를 명시하세요.'];
   checks.forEach(([pass,reason],i)=>{
    el('rubric'+i).dataset.score=pass?'1':'0';
-   el('rubric'+i).textContent=pass?'1 / 1점':'0 / 1점';
+   el('rubric'+i).textContent=pass?'1점':'0점';
    let excerpt=i===1?`${chars}자`:i===2?title:segments.find(t=>evidencePatterns[i]?.test(t));
    const evidence=excerpt ? ` 확인 내용: 「${excerpt.length>200?excerpt.slice(0,200)+'…':excerpt}」` : ' 관련 본문 단서를 찾지 못했습니다.';
    document.querySelectorAll('.grade-reason')[i].textContent=(pass?'1점 · ':'0점 · ')+reason+evidence+(pass?'':' 보완: '+guidance[i]);
