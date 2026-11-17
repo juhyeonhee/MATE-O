@@ -221,3 +221,5 @@ input:not([type="range"]), textarea, select { max-width: 100%; font-size: 16px; 
 }
 
 .rubric-score { display:inline; background:none; color:var(--ink); border:0; border-radius:0; padding:0; font:inherit; font-weight:600; min-width:0; }
+
+.header-actions { flex-wrap:wrap; align-items:center; } .header-actions #analyzeBtn { min-width:0; width:auto; padding:11px 17px; } @media screen and (max-width:520px) { .header-actions { grid-template-columns:1fr 1fr; } .header-actions #analyzeBtn { width:100%; } .header-actions #printBtn { grid-column:1 / -1; } }
