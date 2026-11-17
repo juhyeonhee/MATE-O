@@ -195,3 +195,27 @@ footer { padding: 26px 0 38px; color: var(--muted); font-size: .78rem; text-alig
 .revision-workspace { background: white; border:1px solid var(--line); border-radius:16px; padding:24px; margin:20px 0; } .revision-workspace h2 { margin-bottom:12px; } .revision-actions { display:flex; flex-wrap:wrap; gap:10px; margin:18px 0; } .marked-writing { white-space:pre-wrap; line-height:1.9; padding:16px; border:1px solid var(--line); border-radius:10px; overflow-wrap:anywhere; } .marked-writing mark { background:#fff0bf; color:inherit; } .comparison-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin:20px 0; } .privacy-note { color:var(--muted); font-size:.85rem; } #sentenceAdvice li { margin:12px 0; } @media(max-width:700px) { .comparison-grid { grid-template-columns:1fr; } .revision-workspace { padding:16px; } } @media print { .revision-workspace { border:0; padding:0; } .privacy-note { display:none; } .marked-writing mark { print-color-adjust:exact; } }
 
 .grading-tabs { display:flex; gap:10px; margin:24px 0; flex-wrap:wrap; } .grading-tabs [aria-selected="true"] { background:var(--ink); color:white; } .grade-reason { min-width:220px; font-size:.85rem; } .rubric-panel table { min-width:650px; }
+
+/* Phone layout: keep every grid child within the viewport. */
+main, section, article, .book-fields > *, .editor-grid > *, .comparison-grid > * { min-width: 0; }
+body { overflow-wrap: anywhere; }
+input:not([type="range"]), textarea, select { max-width: 100%; font-size: 16px; }
+@media screen and (max-width: 600px) {
+ body { min-width: 0; }
+ .app-header, main, footer { width: calc(100% - 24px); }
+ .button { min-height: 44px; white-space: normal; }
+ .button-primary { min-width: 0; width: 100%; }
+ .revision-actions, .grading-tabs { display: grid; grid-template-columns: 1fr; }
+ .revision-actions .button, .grading-tabs .button { width: 100%; }
+ .book-fields, .editor-grid, .feedback-grid, .comparison-grid { grid-template-columns: minmax(0,1fr); }
+ .rubric-panel table { min-width: 0; }
+ .rubric-panel thead { display: none; }
+ .rubric-panel tbody, .rubric-panel tr, .rubric-panel th, .rubric-panel td { display: block; width: 100%; }
+ .rubric-panel tr { margin-bottom: 14px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; }
+ .rubric-panel th, .rubric-panel td { border: 0; padding: 6px; }
+ .rubric-panel .grade-reason { min-width: 0; }
+ .rubric-score { display: inline-block; font-size: 1rem; }
+ .result-title-row, .section-heading { flex-direction: column; }
+ .card-heading { flex-wrap: wrap; gap: 8px; }
+ #rubricTotal { max-width: 100%; white-space: normal; }
+}

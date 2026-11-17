@@ -19,7 +19,7 @@ const questionBank = {
 };
 
 function sentences(text) {
-  return text.trim() ? text.trim().split(/(?<=[.!?。！？])\s+|\n+/).filter(Boolean) : [];
+  return text.trim() ? (text.trim().match(/[^.!?。！？\n]+[.!?。！？]*|[.!?。！？]+/g) || []).map(s => s.trim()).filter(Boolean) : [];
 }
 
 function words(text) {
